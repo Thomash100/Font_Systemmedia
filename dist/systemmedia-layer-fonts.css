@@ -1,0 +1,56 @@
+@font-face {
+  font-family: "SYSTEMMEDIA Outer";
+  src:
+    url("fonts/SYSTEMMEDIA-Outer.woff2") format("woff2"),
+    url("fonts/SYSTEMMEDIA-Outer.woff") format("woff");
+}
+
+@font-face {
+  font-family: "SYSTEMMEDIA Channel";
+  src:
+    url("fonts/SYSTEMMEDIA-Channel.woff2") format("woff2"),
+    url("fonts/SYSTEMMEDIA-Channel.woff") format("woff");
+}
+
+@font-face {
+  font-family: "SYSTEMMEDIA Accent";
+  src:
+    url("fonts/SYSTEMMEDIA-Accent.woff2") format("woff2"),
+    url("fonts/SYSTEMMEDIA-Accent.woff") format("woff");
+}
+
+.systemmedia-layer-text {
+  position: relative;
+  display: inline-block;
+  line-height: 1.24;
+  letter-spacing: 0.04em;
+  white-space: pre-wrap;
+}
+
+.systemmedia-layer-text > .outer,
+.systemmedia-layer-text > .channel,
+.systemmedia-layer-text > .accent {
+  display: block;
+}
+
+.systemmedia-layer-text > .channel,
+.systemmedia-layer-text > .accent {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.systemmedia-layer-text > .outer {
+  font-family: "SYSTEMMEDIA Outer";
+  color: #050505;
+}
+
+.systemmedia-layer-text > .channel {
+  font-family: "SYSTEMMEDIA Channel";
+  color: #ffffff;
+}
+
+.systemmedia-layer-text > .accent {
+  font-family: "SYSTEMMEDIA Accent";
+  color: #19aeea;
+}

@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SYSTEMMEDIA Layer Fonts</title>
+  <style>
+    @font-face {
+      font-family: "SYSTEMMEDIA Outer";
+      src:
+        url("dist/fonts/SYSTEMMEDIA-Outer.woff2") format("woff2"),
+        url("dist/fonts/SYSTEMMEDIA-Outer.woff") format("woff");
+    }
+
+    @font-face {
+      font-family: "SYSTEMMEDIA Channel";
+      src:
+        url("dist/fonts/SYSTEMMEDIA-Channel.woff2") format("woff2"),
+        url("dist/fonts/SYSTEMMEDIA-Channel.woff") format("woff");
+    }
+
+    @font-face {
+      font-family: "SYSTEMMEDIA Accent";
+      src:
+        url("dist/fonts/SYSTEMMEDIA-Accent.woff2") format("woff2"),
+        url("dist/fonts/SYSTEMMEDIA-Accent.woff") format("woff");
+    }
+
+    :root {
+      --ink: #050505;
+      --cyan: #19aeea;
+      --line: #dce5ea;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(45deg, #fff 25%, transparent 25%),
+        linear-gradient(-45deg, #fff 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #fff 75%),
+        linear-gradient(-45deg, transparent 75%, #fff 75%),
+        #eef3f6;
+      background-size: 32px 32px;
+      background-position: 0 0, 0 16px, 16px -16px, -16px 0;
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    main {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 32px 0;
+    }
+
+    h1 {
+      margin: 0 0 18px;
+      font-size: clamp(24px, 3vw, 42px);
+      letter-spacing: 0;
+    }
+
+    .stage {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.9);
+      padding: clamp(16px, 3vw, 30px);
+      box-shadow: 0 18px 44px rgba(18, 33, 46, 0.12);
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 88px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font: 18px Arial, Helvetica, sans-serif;
+      resize: vertical;
+    }
+
+    .align {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 12px 0 22px;
+    }
+
+    button {
+      height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0 14px;
+      background: white;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    button[aria-pressed="true"] {
+      background: var(--ink);
+      color: white;
+      border-color: var(--ink);
+    }
+
+    .sample {
+      position: relative;
+      min-height: 260px;
+      overflow: auto;
+      padding: 14px 0;
+      line-height: 1.24;
+      font-size: clamp(50px, 9vw, 132px);
+      white-space: pre-wrap;
+      letter-spacing: 0.04em;
+    }
+
+    .layer {
+      display: block;
+      inset: 14px 0 auto 0;
+      font-weight: 400;
+      overflow-wrap: anywhere;
+    }
+
+    .layer:not(:first-child) {
+      position: absolute;
+      pointer-events: none;
+    }
+
+    .outer {
+      font-family: "SYSTEMMEDIA Outer";
+      color: #050505;
+    }
+
+    .channel {
+      font-family: "SYSTEMMEDIA Channel";
+      color: #ffffff;
+    }
+
+    .accent {
+      font-family: "SYSTEMMEDIA Accent";
+      color: var(--cyan);
+    }
+
+    .left { text-align: left; }
+    .center { text-align: center; }
+    .right { text-align: right; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>SYSTEMMEDIA Layer Fonts</h1>
+    <section class="stage">
+      <textarea id="copy">SYSTEMMEDIA
+FUTURE FONT</textarea>
+      <div class="align">
+        <button type="button" data-align="left" aria-pressed="true">Links</button>
+        <button type="button" data-align="center" aria-pressed="false">Zentriert</button>
+        <button type="button" data-align="right" aria-pressed="false">Rechts</button>
+      </div>
+      <div id="sample" class="sample left">
+        <span class="layer outer"></span>
+        <span class="layer channel"></span>
+        <span class="layer accent"></span>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const copy = document.querySelector("#copy");
+    const sample = document.querySelector("#sample");
+    const layers = document.querySelectorAll(".layer");
+
+    function render() {
+      layers.forEach((layer) => {
+        layer.textContent = copy.value.toUpperCase();
+      });
+    }
+
+    document.querySelectorAll("button[data-align]").forEach((button) => {
+      button.addEventListener("click", () => {
+        sample.classList.remove("left", "center", "right");
+        sample.classList.add(button.dataset.align);
+        document.querySelectorAll("button[data-align]").forEach((item) => {
+          item.setAttribute("aria-pressed", String(item === button));
+        });
+      });
+    });
+
+    copy.addEventListener("input", render);
+    render();
+  </script>
+</body>
+</html>
