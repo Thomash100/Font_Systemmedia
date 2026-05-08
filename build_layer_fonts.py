@@ -1,4 +1,5 @@
 from fontTools.fontBuilder import FontBuilder
+from fontTools.colorLib.builder import buildCOLR, buildCPAL
 from fontTools.pens.ttGlyphPen import TTGlyphPen
 from fontTools.ttLib import TTFont
 import math
@@ -150,21 +151,40 @@ def build_glyph(char, stroke_width):
     return pen.glyph()
 
 
-def make_font(layer, stroke_width, output_dir):
-    family = f"SYSTEMMEDIA {layer}"
-    glyph_order = [".notdef"] + [glyph_name(char) for char in GLYPHS.keys()]
-    char_to_name = {char: glyph_name(char) for char in GLYPHS.keys()}
-    glyphs = {".notdef": TTGlyphPen(None).glyph()}
-    metrics = {".notdef": (600, 0)}
-    cmap = {}
+def build_three_line_glyph(char):
+    pen = TTGlyphPen(None)
+    if char == " ":
+        return pen.glyph()
+    stroke_width = 30
+    offsets = (-64, 0, 64)
+    for path in GLYPHS[char]["p"]:
+        points = parse_path(path)
+        for index in range(len(points) - 1):
+            start = points[index]
+            end = points[index + 1]
+            dx = end[0] - start[0]
+            dy = end[1] - start[1]
+            length = math.hypot(dx, dy)
+            if length < 1:
+                continue
+            nx = -dy / length
+            ny = dx / length
+            for offset in offsets:
+                shifted_start = (start[0] + nx * offset, start[1] + ny * offset)
+                shifted_end = (end[0] + nx * offset, end[1] + ny * offset)
+                add_capsule(pen, shifted_start, shifted_end, stroke_width / 2)
+    return pen.glyph()
 
-    for char, data in GLYPHS.items():
-        name = char_to_name[char]
-        glyphs[name] = build_glyph(char, stroke_width)
-        metrics[name] = (int(data["w"] * SCALE + TRACKING), 0)
-        cmap[ord(char)] = name
 
-    builder = FontBuilder(UNITS_PER_EM, isTTF=True)
+def save_web_formats(font, ttf_path):
+    font.save(ttf_path)
+    for flavor in ("woff", "woff2"):
+        webfont = TTFont(ttf_path)
+        webfont.flavor = flavor
+        webfont.save(os.path.splitext(ttf_path)[0] + f".{flavor}")
+
+
+def setup_common_tables(builder, glyph_order, cmap, glyphs, metrics, family, ps_name):
     builder.setupGlyphOrder(glyph_order)
     builder.setupCharacterMap(cmap)
     builder.setupGlyf(glyphs)
@@ -181,24 +201,93 @@ def make_font(layer, stroke_width, output_dir):
         {
             "familyName": family,
             "styleName": "Regular",
-            "uniqueFontIdentifier": f"SYSTEMMEDIA {layer} Regular",
-            "fullName": f"SYSTEMMEDIA {layer} Regular",
-            "psName": f"SYSTEMMEDIA-{layer}",
-            "version": "Version 1.000",
+            "uniqueFontIdentifier": f"{family} Regular",
+            "fullName": f"{family} Regular",
+            "psName": ps_name,
+            "version": "Version 1.001",
         }
     )
     builder.setupPost()
     builder.setupMaxp()
+
+
+def make_font(layer, stroke_width, output_dir):
+    family = f"SYSTEMMEDIA {layer}"
+    glyph_order = [".notdef"] + [glyph_name(char) for char in GLYPHS.keys()]
+    char_to_name = {char: glyph_name(char) for char in GLYPHS.keys()}
+    glyphs = {".notdef": TTGlyphPen(None).glyph()}
+    metrics = {".notdef": (600, 0)}
+    cmap = {}
+
+    for char, data in GLYPHS.items():
+        name = char_to_name[char]
+        glyphs[name] = build_glyph(char, stroke_width)
+        metrics[name] = (int(data["w"] * SCALE + TRACKING), 0)
+        cmap[ord(char)] = name
+
+    builder = FontBuilder(UNITS_PER_EM, isTTF=True)
+    setup_common_tables(builder, glyph_order, cmap, glyphs, metrics, family, f"SYSTEMMEDIA-{layer}")
     font = builder.font
 
     ttf_path = os.path.join(output_dir, f"SYSTEMMEDIA-{layer}.ttf")
-    woff_path = os.path.join(output_dir, f"SYSTEMMEDIA-{layer}.woff")
-    font.save(ttf_path)
+    save_web_formats(font, ttf_path)
+    return ttf_path
 
-    webfont = TTFont(ttf_path)
-    webfont.flavor = "woff"
-    webfont.save(woff_path)
-    return ttf_path, woff_path
+
+def make_three_line_font(output_dir):
+    family = "SYSTEMMEDIA ThreeLine"
+    glyph_order = [".notdef"] + [glyph_name(char) for char in GLYPHS.keys()]
+    glyphs = {".notdef": TTGlyphPen(None).glyph()}
+    metrics = {".notdef": (600, 0)}
+    cmap = {}
+
+    for char, data in GLYPHS.items():
+        name = glyph_name(char)
+        glyphs[name] = build_three_line_glyph(char)
+        metrics[name] = (int(data["w"] * SCALE + TRACKING), 0)
+        cmap[ord(char)] = name
+
+    builder = FontBuilder(UNITS_PER_EM, isTTF=True)
+    setup_common_tables(builder, glyph_order, cmap, glyphs, metrics, family, "SYSTEMMEDIA-ThreeLine")
+    ttf_path = os.path.join(output_dir, "SYSTEMMEDIA-ThreeLine.ttf")
+    save_web_formats(builder.font, ttf_path)
+    return ttf_path
+
+
+def make_color_font(output_dir):
+    family = "SYSTEMMEDIA Color"
+    glyph_order = [".notdef"]
+    glyphs = {".notdef": TTGlyphPen(None).glyph()}
+    metrics = {".notdef": (600, 0)}
+    cmap = {}
+    color_glyphs = {}
+
+    for char, data in GLYPHS.items():
+        base_name = glyph_name(char)
+        glyph_order.append(base_name)
+        glyphs[base_name] = build_glyph(char, LAYER_STROKES["Outer"])
+        metrics[base_name] = (int(data["w"] * SCALE + TRACKING), 0)
+        cmap[ord(char)] = base_name
+        if char == " ":
+            continue
+
+        layers = []
+        for palette_index, layer in enumerate(("Outer", "Channel", "Accent")):
+            layer_name = f"{base_name}.{layer.lower()}"
+            glyph_order.append(layer_name)
+            glyphs[layer_name] = build_glyph(char, LAYER_STROKES[layer])
+            metrics[layer_name] = metrics[base_name]
+            layers.append((layer_name, palette_index))
+        color_glyphs[base_name] = layers
+
+    builder = FontBuilder(UNITS_PER_EM, isTTF=True)
+    setup_common_tables(builder, glyph_order, cmap, glyphs, metrics, family, "SYSTEMMEDIA-Color")
+    font = builder.font
+    font["COLR"] = buildCOLR(color_glyphs, version=0)
+    font["CPAL"] = buildCPAL([[(0.02, 0.02, 0.02, 1), (1, 1, 1, 1), (0.10, 0.68, 0.92, 1)]])
+    ttf_path = os.path.join(output_dir, "SYSTEMMEDIA-Color.ttf")
+    save_web_formats(font, ttf_path)
+    return ttf_path
 
 
 def main():
@@ -206,9 +295,10 @@ def main():
     output_dir = os.path.join(here, "dist", "fonts")
     os.makedirs(output_dir, exist_ok=True)
     for layer, stroke_width in LAYER_STROKES.items():
-        ttf_path, woff_path = make_font(layer, stroke_width, output_dir)
+        ttf_path = make_font(layer, stroke_width, output_dir)
         print(f"built {ttf_path}")
-        print(f"built {woff_path}")
+    print(f"built {make_three_line_font(output_dir)}")
+    print(f"built {make_color_font(output_dir)}")
 
 
 if __name__ == "__main__":

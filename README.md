@@ -35,6 +35,13 @@ Das Font-Paket besteht aus drei Fonts mit identischen Metriken:
 
 Die Fonts liegen als `.ttf`, `.woff` und `.woff2` in `dist/fonts/`.
 
+Zusatzlich sind zwei direkt auswaehlbare Fonts enthalten:
+
+- `SYSTEMMEDIA-ThreeLine` - ein einfarbiger 3-Linien-Font
+- `SYSTEMMEDIA-Color` - ein mehrfarbiger Color-Font mit COLR/CPAL Tabellen
+
+Hinweis: `SYSTEMMEDIA-Color` wird nicht von allen Programmen farbig angezeigt. Browser und moderne Designprogramme koennen COLR/CPAL oft darstellen; andere Programme zeigen nur die Fallback-Kontur.
+
 Oeffne `layer-font-demo.html`, um die echte Font-Version mit allen drei Ebenen zu testen.
 
 Fuer Websites kann `dist/systemmedia-layer-fonts.css` eingebunden werden. Der Text wird dreimal uebereinander gesetzt:

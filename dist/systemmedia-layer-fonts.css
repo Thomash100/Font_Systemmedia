@@ -19,6 +19,20 @@
     url("fonts/SYSTEMMEDIA-Accent.woff") format("woff");
 }
 
+@font-face {
+  font-family: "SYSTEMMEDIA ThreeLine";
+  src:
+    url("fonts/SYSTEMMEDIA-ThreeLine.woff2") format("woff2"),
+    url("fonts/SYSTEMMEDIA-ThreeLine.woff") format("woff");
+}
+
+@font-face {
+  font-family: "SYSTEMMEDIA Color";
+  src:
+    url("fonts/SYSTEMMEDIA-Color.woff2") format("woff2"),
+    url("fonts/SYSTEMMEDIA-Color.woff") format("woff");
+}
+
 .systemmedia-layer-text {
   position: relative;
   display: inline-block;
@@ -53,4 +67,14 @@
 .systemmedia-layer-text > .accent {
   font-family: "SYSTEMMEDIA Accent";
   color: #19aeea;
+}
+
+.systemmedia-three-line {
+  font-family: "SYSTEMMEDIA ThreeLine";
+  letter-spacing: 0.04em;
+}
+
+.systemmedia-color {
+  font-family: "SYSTEMMEDIA Color";
+  letter-spacing: 0.04em;
 }

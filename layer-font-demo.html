@@ -26,6 +26,20 @@
         url("dist/fonts/SYSTEMMEDIA-Accent.woff") format("woff");
     }
 
+    @font-face {
+      font-family: "SYSTEMMEDIA ThreeLine";
+      src:
+        url("dist/fonts/SYSTEMMEDIA-ThreeLine.woff2") format("woff2"),
+        url("dist/fonts/SYSTEMMEDIA-ThreeLine.woff") format("woff");
+    }
+
+    @font-face {
+      font-family: "SYSTEMMEDIA Color";
+      src:
+        url("dist/fonts/SYSTEMMEDIA-Color.woff2") format("woff2"),
+        url("dist/fonts/SYSTEMMEDIA-Color.woff") format("woff");
+    }
+
     :root {
       --ink: #050505;
       --cyan: #19aeea;
@@ -113,6 +127,31 @@
       letter-spacing: 0.04em;
     }
 
+    .single-font-sample {
+      margin-top: 24px;
+      border-top: 1px solid var(--line);
+      padding-top: 20px;
+      font-size: clamp(42px, 8vw, 112px);
+      line-height: 1.24;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      letter-spacing: 0.04em;
+    }
+
+    .single-font-sample h2 {
+      margin: 0 0 10px;
+      font: 700 15px Arial, Helvetica, sans-serif;
+    }
+
+    .three-line {
+      font-family: "SYSTEMMEDIA ThreeLine";
+      color: #050505;
+    }
+
+    .color-font {
+      font-family: "SYSTEMMEDIA Color";
+    }
+
     .layer {
       display: block;
       inset: 14px 0 auto 0;
@@ -161,6 +200,14 @@ FUTURE FONT</textarea>
         <span class="layer channel"></span>
         <span class="layer accent"></span>
       </div>
+      <div class="single-font-sample">
+        <h2>SYSTEMMEDIA ThreeLine Regular</h2>
+        <div id="threeLine" class="three-line left"></div>
+      </div>
+      <div class="single-font-sample">
+        <h2>SYSTEMMEDIA Color Regular</h2>
+        <div id="colorFont" class="color-font left"></div>
+      </div>
     </section>
   </main>
 
@@ -168,17 +215,25 @@ FUTURE FONT</textarea>
     const copy = document.querySelector("#copy");
     const sample = document.querySelector("#sample");
     const layers = document.querySelectorAll(".layer");
+    const threeLine = document.querySelector("#threeLine");
+    const colorFont = document.querySelector("#colorFont");
 
     function render() {
       layers.forEach((layer) => {
         layer.textContent = copy.value.toUpperCase();
       });
+      threeLine.textContent = copy.value.toUpperCase();
+      colorFont.textContent = copy.value.toUpperCase();
     }
 
     document.querySelectorAll("button[data-align]").forEach((button) => {
       button.addEventListener("click", () => {
         sample.classList.remove("left", "center", "right");
+        threeLine.classList.remove("left", "center", "right");
+        colorFont.classList.remove("left", "center", "right");
         sample.classList.add(button.dataset.align);
+        threeLine.classList.add(button.dataset.align);
+        colorFont.classList.add(button.dataset.align);
         document.querySelectorAll("button[data-align]").forEach((item) => {
           item.setAttribute("aria-pressed", String(item === button));
         });
