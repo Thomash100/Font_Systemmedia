@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SYSTEMMEDIA Typeface</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #0b0f14;
+      --muted: #66717c;
+      --line: #d9e1e7;
+      --cyan: #19aeea;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(45deg, #fff 25%, transparent 25%),
+        linear-gradient(-45deg, #fff 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #fff 75%),
+        linear-gradient(-45deg, transparent 75%, #fff 75%),
+        #eef3f6;
+      background-size: 32px 32px;
+      background-position: 0 0, 0 16px, 16px -16px, -16px 0;
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    main {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 32px 0;
+    }
+
+    header {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(24px, 3vw, 42px);
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .label {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .stage {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.86);
+      border-radius: 8px;
+      padding: clamp(16px, 3vw, 30px);
+      box-shadow: 0 18px 44px rgba(18, 33, 46, 0.12);
+    }
+
+    .preview {
+      width: 100%;
+      display: block;
+      min-height: 220px;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    textarea {
+      min-width: 0;
+      width: 100%;
+      min-height: 96px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 18px;
+      outline: none;
+      background: white;
+      resize: vertical;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    textarea:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 0 3px rgba(25, 174, 234, 0.16);
+    }
+
+    .toolrow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .segment,
+    .exports {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    button {
+      height: 46px;
+      border: 0;
+      border-radius: 8px;
+      padding: 0 16px;
+      background: var(--ink);
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .segment button {
+      min-width: 54px;
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+    }
+
+    .segment button[aria-pressed="true"] {
+      border-color: var(--ink);
+      background: var(--ink);
+      color: white;
+    }
+
+    .alphabet {
+      margin-top: 22px;
+      border-top: 1px solid var(--line);
+      padding-top: 20px;
+    }
+
+    @media (max-width: 720px) {
+      header,
+      .toolrow,
+      .exports,
+      .segment {
+        grid-template-columns: 1fr;
+        display: grid;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <h1>SYSTEMMEDIA Typeface</h1>
+        <div class="label">Custom display type</div>
+      </div>
+      <div class="label">A-Z / 0-9 / SVG / PNG / PDF</div>
+    </header>
+
+    <section class="stage">
+      <svg id="preview" class="preview" role="img" aria-label="Schriftvorschau"></svg>
+      <div class="controls">
+        <textarea id="textInput" aria-label="Vorschautext">SYSTEMMEDIA
+FUTURE FONT</textarea>
+        <div class="toolrow">
+          <div class="segment" aria-label="Ausrichtung">
+            <button class="alignButton" type="button" data-align="left" aria-pressed="true">Links</button>
+            <button class="alignButton" type="button" data-align="center" aria-pressed="false">Zentriert</button>
+            <button class="alignButton" type="button" data-align="right" aria-pressed="false">Rechts</button>
+          </div>
+          <div class="exports">
+            <button id="downloadSvg" type="button">SVG</button>
+            <button id="downloadPng" type="button">Bild PNG</button>
+            <button id="downloadPdf" type="button">PDF</button>
+          </div>
+        </div>
+      </div>
+      <div class="alphabet">
+        <svg id="alphabet" class="preview" role="img" aria-label="Alphabet in SYSTEMMEDIA Stil"></svg>
+      </div>
+    </section>
+  </main>
+
+  <script src="systemmedia-typeface.js"></script>
+  <script>
+    const preview = document.querySelector("#preview");
+    const alphabet = document.querySelector("#alphabet");
+    const input = document.querySelector("#textInput");
+    let currentAlign = "left";
+
+    function draw() {
+      renderSystemmediaText(preview, input.value, { scale: 1.35, align: currentAlign });
+    }
+
+    function downloadBlob(blob, filename) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function previewSvgString() {
+      const clone = preview.cloneNode(true);
+      clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+      return clone.outerHTML;
+    }
+
+    function svgToCanvas() {
+      return new Promise((resolve, reject) => {
+        const svgText = previewSvgString();
+        const svgBlob = new Blob([svgText], { type: "image/svg+xml;charset=utf-8" });
+        const url = URL.createObjectURL(svgBlob);
+        const image = new Image();
+        const viewBox = preview.getAttribute("viewBox").split(" ").map(Number);
+        const width = Math.ceil(viewBox[2] * 2);
+        const height = Math.ceil(viewBox[3] * 2);
+        image.onload = () => {
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, width, height);
+          ctx.drawImage(image, 0, 0, width, height);
+          URL.revokeObjectURL(url);
+          resolve(canvas);
+        };
+        image.onerror = () => {
+          URL.revokeObjectURL(url);
+          reject(new Error("SVG render failed"));
+        };
+        image.src = url;
+      });
+    }
+
+    async function svgToPngBlob() {
+      const canvas = await svgToCanvas();
+      return new Promise((resolve, reject) => {
+        canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("PNG export failed")), "image/png");
+      });
+    }
+
+    function makePdfFromJpegDataUrl(dataUrl, widthPx, heightPx) {
+      const encoder = new TextEncoder();
+      const mmPerPx = 0.264583;
+      const pageWidth = Math.max(120, widthPx * mmPerPx);
+      const pageHeight = Math.max(80, heightPx * mmPerPx);
+      const imageData = atob(dataUrl.split(",")[1]);
+      const imageBytes = Uint8Array.from(imageData, (char) => char.charCodeAt(0));
+      const objects = [];
+      const add = (...parts) => {
+        objects.push(parts);
+        return objects.length;
+      };
+      const catalog = add("<< /Type /Catalog /Pages 2 0 R >>");
+      const pages = add("<< /Type /Pages /Kids [3 0 R] /Count 1 >>");
+      add(`<< /Type /Page /Parent ${pages} 0 R /MediaBox [0 0 ${pageWidth.toFixed(2)} ${pageHeight.toFixed(2)}] /Resources << /XObject << /Im1 4 0 R >> >> /Contents 5 0 R >>`);
+      add(
+        `<< /Type /XObject /Subtype /Image /Width ${widthPx} /Height ${heightPx} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${imageBytes.length} >>\nstream\n`,
+        imageBytes,
+        "\nendstream"
+      );
+      const content = `q\n${pageWidth.toFixed(2)} 0 0 ${pageHeight.toFixed(2)} 0 0 cm\n/Im1 Do\nQ`;
+      add(`<< /Length ${content.length} >>\nstream\n${content}\nendstream`);
+      const chunks = [encoder.encode("%PDF-1.4\n")];
+      const offsets = [0];
+      let length = chunks[0].byteLength;
+      for (let i = 0; i < objects.length; i += 1) {
+        offsets.push(length);
+        const prefix = encoder.encode(`${i + 1} 0 obj\n`);
+        const suffix = encoder.encode("\nendobj\n");
+        chunks.push(prefix);
+        length += prefix.byteLength;
+        for (const part of objects[i]) {
+          const chunk = typeof part === "string" ? encoder.encode(part) : part;
+          chunks.push(chunk);
+          length += chunk.byteLength;
+        }
+        chunks.push(suffix);
+        length += suffix.byteLength;
+      }
+      const xrefStart = length;
+      let xref = `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+      for (let i = 1; i < offsets.length; i += 1) {
+        xref += `${String(offsets[i]).padStart(10, "0")} 00000 n \n`;
+      }
+      const trailer = `trailer\n<< /Size ${objects.length + 1} /Root ${catalog} 0 R >>\nstartxref\n${xrefStart}\n%%EOF`;
+      chunks.push(encoder.encode(xref), encoder.encode(trailer));
+      return new Blob(chunks, { type: "application/pdf" });
+    }
+
+    document.querySelectorAll(".alignButton").forEach((button) => {
+      button.addEventListener("click", () => {
+        currentAlign = button.dataset.align;
+        document.querySelectorAll(".alignButton").forEach((item) => {
+          item.setAttribute("aria-pressed", String(item === button));
+        });
+        draw();
+      });
+    });
+
+    input.addEventListener("input", draw);
+    draw();
+    renderSystemmediaText(alphabet, "ABCDEFGHIJKLMNOPQRSTUVWXYZ\n0123456789", { scale: 0.72, align: "left" });
+
+    document.querySelector("#downloadSvg").addEventListener("click", () => {
+      downloadBlob(new Blob([previewSvgString()], { type: "image/svg+xml" }), "systemmedia-typeface.svg");
+    });
+
+    document.querySelector("#downloadPng").addEventListener("click", async () => {
+      downloadBlob(await svgToPngBlob(), "systemmedia-typeface.png");
+    });
+
+    document.querySelector("#downloadPdf").addEventListener("click", async () => {
+      const canvas = await svgToCanvas();
+      const jpegDataUrl = canvas.toDataURL("image/jpeg", 0.95);
+      downloadBlob(makePdfFromJpegDataUrl(jpegDataUrl, canvas.width, canvas.height), "systemmedia-typeface.pdf");
+    });
+  </script>
+</body>
+</html>
